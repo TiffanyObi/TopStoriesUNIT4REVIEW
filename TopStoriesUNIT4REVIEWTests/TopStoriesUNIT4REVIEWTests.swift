@@ -7,11 +7,40 @@
 //
 
 import XCTest
+import NetworkHelper
 @testable import TopStoriesUNIT4REVIEW
 
 class TopStoriesUNIT4REVIEWTests: XCTestCase {
 
-    
+    func testBookTopicSearch() {
+        
+        
+        let exp = XCTestExpectation(description: "search found") //need this
+        
+      let nYTimesEndpoint = "https://api.nytimes.com/svc/topstories/v2/nyregion.json?api-key=5zBjKztkvGttnXYE4WrGsE6ZJQrr1OoE"
+        
+        let request = URLRequest(url: URL(string: nYTimesEndpoint)!)
+        
+        //act
+        NetworkHelper.shared.performDataTask(with: request) { (result) in
+            
+            switch result {
+                
+            case .failure(let appError):
+                XCTFail("appError: \(appError)")
+                
+            case .success(let data):
+                exp.fulfill() //need this
+                //assert
+                XCTAssertGreaterThan(data.count, 88_000, "data should be greater than \(data.count)")
+                
+            }
+        }
+        
+        wait(for: [exp], timeout: 5.0) // wait for 5 seconds. //need this
+    }
+      
+      
     
     func checkApiForModel() {
         
@@ -21,14 +50,10 @@ class TopStoriesUNIT4REVIEWTests: XCTestCase {
                 
             }
             struct Details: Codable {
-               
+                let section: String
+                let title: String
             }
         
-        struct Books: Codable {
-            let title: String
-        }
-
-    
    let json = """
 {
     "status": "OK",
@@ -196,7 +221,13 @@ class TopStoriesUNIT4REVIEWTests: XCTestCase {
 
 
 }
-"""
+""".data(using: .utf8)!
+        
+            let stories = try! JSONDecoder().decode(SearchResult.self, from: json)
+            
+            // assert
+        XCTAssertEqual(stories.results.count, 2)
+
 
 }
     

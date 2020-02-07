@@ -1,5 +1,5 @@
 //
-//  TopStoriesTabController.swift
+//  SettingsViewController.swift
 //  TopStoriesUNIT4REVIEW
 //
 //  Created by Tiffany Obi on 2/6/20.
@@ -8,11 +8,11 @@
 
 import UIKit
 
-class TopStoriesTabController: UITabBarController {
+class SettingsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .yellow
+        view.backgroundColor = .blue
         // Do any additional setup after loading the view.
     }
     
