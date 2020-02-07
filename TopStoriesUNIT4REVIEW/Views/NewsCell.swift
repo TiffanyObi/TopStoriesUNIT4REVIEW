@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import ImageKit
 
 class NewsCell: UICollectionViewCell {
     
@@ -32,7 +33,7 @@ class NewsCell: UICollectionViewCell {
     
     public lazy var abstractLabel: UILabel = {
         let label = UILabel()
-        label.numberOfLines = 4
+        label.numberOfLines = 5
         label.font = UIFont.preferredFont(forTextStyle: .subheadline)
          label.text = "Abstract Headline"
         return label
@@ -52,6 +53,7 @@ class NewsCell: UICollectionViewCell {
             setupNewsImageViewContraints()
             setUpArticleTitleConstraints()
             setUpAbstractHeadlineConstraints()
+            
         }
     
     private func setupNewsImageViewContraints() {
@@ -62,10 +64,10 @@ class NewsCell: UICollectionViewCell {
         
         NSLayoutConstraint.activate([
         
-            newsImageView.topAnchor.constraint(equalTo: topAnchor, constant: 20),
+            newsImageView.topAnchor.constraint(equalTo: topAnchor, constant: 8),
             
-            newsImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            newsImageView.heightAnchor.constraint(equalTo: heightAnchor, multiplier: 0.3),
+            newsImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8),
+            newsImageView.heightAnchor.constraint(equalTo: heightAnchor, multiplier: 0.8),
             newsImageView.widthAnchor.constraint(equalTo: newsImageView.heightAnchor)
         
         ])
@@ -96,6 +98,29 @@ class NewsCell: UICollectionViewCell {
             abstractLabel.topAnchor.constraint(equalTo: articleTitleLabel.bottomAnchor, constant: 8)
         
         ])
+    }
+    
+    public func configureCell(with article: Article) {
+        
+        articleTitleLabel.text = article.title
+        
+        abstractLabel.text = article.abstract
+        
+        newsImageView.getImage(with: article.getArticleImageURL(for: .thumbLarge)) { [weak self] (result) in
+            switch result {
+            case .failure:
+                DispatchQueue.main.async {
+                    self?.newsImageView.image = UIImage(systemName: "exclamationmark-octagon")
+                }
+                
+            case.success(let image):
+                DispatchQueue.main.async {
+                    self?.newsImageView.image = image
+                }
+            }
+        }
+      
+        
     }
     
 }

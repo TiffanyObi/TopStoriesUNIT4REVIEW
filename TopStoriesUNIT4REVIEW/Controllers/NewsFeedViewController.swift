@@ -9,8 +9,10 @@
 import UIKit
 
 class NewsFeedViewController: UIViewController {
+    
     private var newsFeedView = NewsFeedView()
       
+    //data for our collectionView
       var articles = [Article]() {
         didSet {
           DispatchQueue.main.async {
@@ -37,13 +39,16 @@ class NewsFeedViewController: UIViewController {
       }
       
       private func fetchStories(for section: String = "Technology") {
-        NYTTopStoriesAPIClient.fetchTopStories(for: section) { (result) in
+        NYTTopStoriesAPIClient.fetchTopStories(for: section) { [weak self] (result) in
           switch result {
           case .failure(let appError):
+            
             print("Fetching Error:\(appError)")
+            
           case .success(let articles):
-            print("\(articles.count)")
-            self.articles = articles
+            
+//         no need for DispatchQueue.main.async becaus ethere is no UI in the Api client.
+            self?.articles = articles
           }
         }
       }
@@ -61,12 +66,12 @@ class NewsFeedViewController: UIViewController {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "articleCell", for: indexPath) as? NewsCell else {
             fatalError("could not downcast to NewsCell")
         }
-        cell.backgroundColor = .white
-        
+        cell.backgroundColor = .systemGray2
+        let cellInRow = articles[indexPath.row]
+        cell.configureCell(with: cellInRow)
         return cell
       }
       
-     
     }
 
     extension NewsFeedViewController : UICollectionViewDelegateFlowLayout {
@@ -76,10 +81,19 @@ class NewsFeedViewController: UIViewController {
       func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
           let maxSize : CGSize = UIScreen.main.bounds.size
         let itemWidth: CGFloat = maxSize.width
-        let itemHeight: CGFloat = maxSize.height * 0.275  // 30%
+        let itemHeight: CGFloat = maxSize.height * 0.22  // 30%
         return CGSize(width: itemWidth, height: itemHeight)
       }
    
-    
+        
+        func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+            
+            let article = articles[indexPath.row]
+            let articleDetailVC = ArticleDetailViewController()
+            //ToDo: after assesment we will be using initializers as dependency injection mechanisms
+            navigationController?.pushViewController(articleDetailVC, animated: true)
+            articleDetailVC.article = article
+            
+        }
 
 }
