@@ -45,6 +45,8 @@ class NewsFeedViewController: UIViewController {
         newsFeedView.collectionView.register(NewsCell.self, forCellWithReuseIdentifier: "articleCell")
         
         view.backgroundColor = .systemBackground  // white when dark mode is off - black when dark mode on
+        
+        newsFeedView.searchBar.delegate = self
       }
       
     override func viewWillAppear(_ animated: Bool) {
@@ -62,6 +64,8 @@ class NewsFeedViewController: UIViewController {
                 queryApi(for: sectionName)
                 self.sectionSearch = sectionName
                 
+            } else {
+                queryApi(for: "Education")
             }
         } else {
             queryApi(for: sectionSearch)
@@ -83,6 +87,12 @@ class NewsFeedViewController: UIViewController {
                     self?.articles = articles
                   }
                 }
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if newsFeedView.searchBar.isFirstResponder {
+            newsFeedView.searchBar.resignFirstResponder()
+        }
     }
 }
 
@@ -126,4 +136,17 @@ class NewsFeedViewController: UIViewController {
             
         }
 
+}
+
+extension NewsFeedViewController : UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        
+        guard !searchText.isEmpty else {
+            fetchStories(for: "Technology")
+            return
+        }
+        //filter articles based on search text
+        
+        articles = articles.filter { $0.title.lowercased().contains(searchText.lowercased())}
+    }
 }
