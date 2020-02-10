@@ -105,6 +105,8 @@ extension SavedArticleViewController: UICollectionViewDataSource {
             detailVC.article = article
             detailVC.dataPersistence = dataPersistence
             
+            navigationController?.pushViewController(detailVC, animated: true)
+            
         }
         
     }
