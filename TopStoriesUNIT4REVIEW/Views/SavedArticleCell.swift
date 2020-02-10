@@ -22,6 +22,11 @@ class SavedArticleCell: UICollectionViewCell {
     
     // to keep travkk of the current cells article
     private var currentArticle: Article!
+    private lazy var longPressGesture: UILongPressGestureRecognizer = {
+        let longPress = UILongPressGestureRecognizer()
+        longPress.addTarget(self, action: #selector(didLongPress(_:)))
+        return longPress
+    }()
     
     public lazy var moreButton: UIButton = {
         let button = UIButton()
@@ -44,6 +49,17 @@ class SavedArticleCell: UICollectionViewCell {
         return label
     }()
     
+    public lazy var newsImageView: UIImageView = {
+       let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.image = UIImage(systemName: "photo")
+        imageView.alpha = 0
+        
+        return imageView
+    }()
+    
+    private var isShowingImage = false
     
     override init(frame: CGRect) {
         super.init(frame:frame)
@@ -58,12 +74,56 @@ class SavedArticleCell: UICollectionViewCell {
     private func commomInit() {
         setUpMoreButtonConstraints()
         setUpArticleLableConstraints()
+        setUpImageViewConstraints()
+        
+        addGestureRecognizer(longPressGesture)
     }
     
     @objc private func moreButtonPressed(_ sender: UIButton) {
         
         //Step 3: creating custom protocol
         delegate?.didSelectMoreButton(self, article: currentArticle)
+    }
+    
+    
+    @objc private func didLongPress(_ gesture: UILongPressGestureRecognizer) {
+        
+        guard let currentArticle = currentArticle else { return }
+        if gesture.state == .began || gesture.state == .changed {
+            print("long pressed")
+        }
+        
+        isShowingImage.toggle()
+        
+        newsImageView.getImage(with: currentArticle.getArticleImageURL(for: .normal)) { [weak self] (result) in
+            switch result {
+            case .failure:
+                self?.newsImageView.image = UIImage(systemName: "exclamtionmark- octogon")
+                
+            case .success(let image):
+                
+                DispatchQueue.main.async {
+                    self?.newsImageView.image = image
+                    self?.animate()
+                }
+            }
+        }
+    }
+    
+    private func animate() {
+        let duration : Double = 1.0
+        if isShowingImage {
+            UIView.transition(with: self, duration: duration, options: [.transitionFlipFromRight], animations: {
+                self.newsImageView.alpha = 1
+                self.articleTitle.alpha = 0
+            }, completion: nil)
+        } else {
+            UIView.transition(with: self, duration: duration, options: [.transitionFlipFromLeft], animations: {
+                self.newsImageView.alpha = 0
+                self.articleTitle.alpha = 1
+            }, completion: nil)
+        }
+        
     }
     
     private func setUpMoreButtonConstraints() {
@@ -89,6 +149,20 @@ class SavedArticleCell: UICollectionViewCell {
         
         ])
     }
+    
+    private func setUpImageViewConstraints() {
+        addSubview(newsImageView)
+        newsImageView.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            newsImageView.topAnchor.constraint(equalTo: moreButton.bottomAnchor),
+            newsImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            newsImageView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            newsImageView.trailingAnchor.constraint(equalTo: trailingAnchor)
+        
+        
+        ])
+        }
     
     public func congifureCell(for savedArticle: Article){
         currentArticle = savedArticle // associating the cell with its article

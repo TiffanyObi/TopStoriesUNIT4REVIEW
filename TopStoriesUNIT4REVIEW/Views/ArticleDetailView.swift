@@ -16,7 +16,8 @@ import UIKit
             let imageView = UIImageView()
             imageView.backgroundColor = .purple
             imageView.image = UIImage(systemName: "photo")
-            imageView.contentMode = .scaleToFill
+            imageView.contentMode = .scaleAspectFill
+            imageView.clipsToBounds = true
             return imageView
         }()
         
@@ -25,6 +26,7 @@ import UIKit
             let label = UILabel()
             label.backgroundColor = .systemTeal
             label.numberOfLines = 0
+            
             label.textAlignment = .center
             label.font = UIFont.preferredFont(forTextStyle: .title3)
              label.text = "Abstract Headline"
