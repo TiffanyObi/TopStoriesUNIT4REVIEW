@@ -7,16 +7,18 @@
 //
 
 import UIKit
-
+import DataPersistence
 class NewsFeedViewController: UIViewController {
     
     private var newsFeedView = NewsFeedView()
+    public var dataPersistence: DataPersistence<Article>!
       
     //data for our collectionView
       var articles = [Article]() {
         didSet {
           DispatchQueue.main.async {
             self.newsFeedView.collectionView.reloadData()
+            self.navigationItem.title = (self.sectionSearch) + " News"
           }
         }
       }
@@ -25,9 +27,16 @@ class NewsFeedViewController: UIViewController {
         view = newsFeedView
       }
       
+    public var sectionSearch = "Technology" {
+        didSet {
+            
+        }
+    }
+    
+    
       override func viewDidLoad() {
         super.viewDidLoad()
-        fetchStories()
+       
         // setting up collection view data source and delegate
         newsFeedView.collectionView.dataSource = self
         newsFeedView.collectionView.delegate = self
@@ -38,24 +47,44 @@ class NewsFeedViewController: UIViewController {
         view.backgroundColor = .systemBackground  // white when dark mode is off - black when dark mode on
       }
       
-      private func fetchStories(for section: String = "Technology") {
-        NYTTopStoriesAPIClient.fetchTopStories(for: section) { [weak self] (result) in
-          switch result {
-          case .failure(let appError):
-            
-            print("Fetching Error:\(appError)")
-            
-          case .success(let articles):
-            
-//         no need for DispatchQueue.main.async becaus ethere is no UI in the Api client.
-            self?.articles = articles
-          }
-        }
-      }
-      
-      
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+         fetchStories(for: sectionSearch)
     }
-
+    
+    
+    private func fetchStories(for section: String ) {
+        
+        if let sectionName = UserDefaults.standard.object(forKey: UserKey.newsSectionName) as? String {
+            
+            if sectionName != self.sectionSearch {
+                
+                queryApi(for: sectionName)
+                self.sectionSearch = sectionName
+                
+            }
+        } else {
+            queryApi(for: sectionSearch)
+        }
+    }
+    
+    
+    
+    private func queryApi(for section:String){
+        NYTTopStoriesAPIClient.fetchTopStories(for: section) { [weak self] (result) in
+                  switch result {
+                  case .failure(let appError):
+                    
+                    print("Fetching Error:\(appError)")
+                    
+                  case .success(let articles):
+                    
+        //         no need for DispatchQueue.main.async becaus ethere is no UI in the Api client.
+                    self?.articles = articles
+                  }
+                }
+    }
+}
 
     extension NewsFeedViewController : UICollectionViewDataSource {
       func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -92,6 +121,7 @@ class NewsFeedViewController: UIViewController {
             let articleDetailVC = ArticleDetailViewController()
             //ToDo: after assesment we will be using initializers as dependency injection mechanisms
             navigationController?.pushViewController(articleDetailVC, animated: true)
+            articleDetailVC.dataPersistence = dataPersistence
             articleDetailVC.article = article
             
         }

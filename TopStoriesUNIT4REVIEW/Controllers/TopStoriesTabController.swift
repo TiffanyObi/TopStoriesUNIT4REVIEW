@@ -7,12 +7,15 @@
 //
 
 import UIKit
-
+import DataPersistence
 class TopStoriesTabController: UITabBarController {
+    
+    private var dataPersistence = DataPersistence<Article>(filename: "savedArticles.plist")
 
     private lazy var  newsFeedVC: NewsFeedViewController = {
         let viewController = NewsFeedViewController()
         viewController.tabBarItem = UITabBarItem(title: "News Feed", image: UIImage(systemName: "eyeglasses"), tag: 0)
+        viewController.dataPersistence = dataPersistence
         return viewController
         
     }()
@@ -20,6 +23,8 @@ class TopStoriesTabController: UITabBarController {
     private lazy var  savedArticleVC:SavedArticleViewController = {
         let viewController = SavedArticleViewController()
         viewController.tabBarItem = UITabBarItem(title: "Saved Article", image: UIImage(systemName: "folder"), tag: 1)
+        viewController.dataPersistence = dataPersistence
+        viewController.dataPersistence.delegate = viewController
         return viewController
         
     }()
@@ -32,7 +37,7 @@ class TopStoriesTabController: UITabBarController {
     }()
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+       
         viewControllers = [UINavigationController(rootViewController:newsFeedVC),UINavigationController(rootViewController:savedArticleVC),UINavigationController(rootViewController:settingsVC)]
         // Do any additional setup after loading the view.
     }

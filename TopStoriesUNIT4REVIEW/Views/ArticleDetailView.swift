@@ -16,7 +16,7 @@ import UIKit
             let imageView = UIImageView()
             imageView.backgroundColor = .purple
             imageView.image = UIImage(systemName: "photo")
-            imageView.contentMode = .scaleAspectFill
+            imageView.contentMode = .scaleToFill
             return imageView
         }()
         
@@ -59,7 +59,7 @@ import UIKit
                 newsImageView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
                 newsImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
                 newsImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
-                newsImageView.heightAnchor.constraint(equalTo: safeAreaLayoutGuide.heightAnchor, multiplier: 0.5)
+                newsImageView.heightAnchor.constraint(equalTo: safeAreaLayoutGuide.heightAnchor, multiplier: 0.7)
             
             ])
         }

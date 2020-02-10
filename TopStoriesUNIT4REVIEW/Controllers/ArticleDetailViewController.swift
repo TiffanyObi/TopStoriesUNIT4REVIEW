@@ -7,10 +7,14 @@
 //
 
 import UIKit
+import ImageKit
+import DataPersistence
 
 class ArticleDetailViewController: UIViewController {
     
     public var article: Article?
+    public var dataPersistence: DataPersistence<Article>!
+    
     let detailView = DetailView()
     
     override func loadView() {
@@ -49,8 +53,17 @@ class ArticleDetailViewController: UIViewController {
     
     
 @objc
-    func savedArticleButtonPressed() {
+    func savedArticleButtonPressed(_ sender: UIBarButtonItem) {
         print("saved article pressed")
+    guard let article = article else {
+        return
+    }
+    
+    do {
+        try dataPersistence.createItem(article)
+    } catch {
+        print("error savimg article - error\(error)")
     }
 
+    }
 }

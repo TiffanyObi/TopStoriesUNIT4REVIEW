@@ -8,23 +8,66 @@
 
 import UIKit
 
+struct UserKey {
+    static let newsSectionName = "News Section Name"
+    static let pickerSection = 5
+}
+
 class SettingsViewController: UIViewController {
+    
+    private let settingsView = SettingsView()
+    
+    
+    //data for pickerView
+    
+private let sections = ["Arts", "Automobiles", "Books", "Business", "Fashion", "Food", "Health", "Insider", "Magazine", "Movies", "NYRegion", "Obituaries", "Opinion", "Politics", "RealeEstate", "Science", "Sports", "SundayReview", "Technology", "Theater", "T-Magazine", "Travel", "Upshot", "US", "World"]
+    
+    override func loadView() {
+        view = settingsView
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .blue
-        // Do any additional setup after loading the view.
+        
+        view.backgroundColor = .systemYellow
+        settingsView.pickerView.dataSource = self
+        settingsView.pickerView.delegate = self
+        
     }
     
 
-    /*
-    // MARK: - Navigation
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+}
+
+extension SettingsViewController: UIPickerViewDataSource {
+    
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
     }
-    */
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        sections.count
+    }
+    
+    
+}
+extension SettingsViewController: UIPickerViewDelegate {
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        
+        return sections[row]
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        //store the current selected news section in my UserDefaults
+        
+        
+       let sectionName = sections[row]
+        
+        UserDefaults.standard.set(sectionName, forKey: UserKey.newsSectionName)
+        
 
+        
+    }
+    
+    
 }
